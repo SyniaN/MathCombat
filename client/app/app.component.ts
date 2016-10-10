@@ -4,7 +4,7 @@ import {Component} from '@angular/core';
     selector: 'my-app',
     template: `
     <header>
-        <nav class="navbar navbar-default navbar-fixed-top">
+        <nav class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
                     <a href="/" class="navbar-brand">Arithmetica</a>
