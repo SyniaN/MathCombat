@@ -1,4 +1,8 @@
 import {Component} from '@angular/core';
+import {User} from './shared/models/User';
+import {UserService} from'./user.service';
+import {QuestionsService} from'./questions.service';
+import {OnInit} from '@angular/core';
 
 @Component({
     selector: 'my-app',
@@ -12,10 +16,10 @@ import {Component} from '@angular/core';
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li>
-                            <a>Login</a>
+                            <a href='#' (click)="login()">Login</a>
                         </li>
                         <li>
-                            <a>Sign Up</a>
+                            <a href='#' (click)="signUp()">Sign Up</a>
                         </li>
                     </ul>
                 </div>
@@ -30,38 +34,38 @@ import {Component} from '@angular/core';
             <div class="row">
                 <ul class="list-group col-xs-4 player-info-panel">
                     <li class="list-group-item">
-                        <span class="badge">Rank 1</span>
-                        User
+                        <span class="badge">Rank {{user.rank}}</span>
+                        {{user.name}}
                     </li>
                     <li class="list-group-item">
-                        <span class="badge">4/5</span>
+                        <span class="badge">{{user.stars}}/5</span>
                         Stars
                     </li>
                 </ul>
                 <div id="timer" class="col-xs-4">
                     <h4>Time:</h4>
-                    <h1  >02:00</h1>
+                    <h1>{{time}}</h1>
                 </div>
 
                 <ul class="list-group col-xs-4 player-info-panel">
                     <li class="list-group-item">
-                        <span class="badge">Rank 1</span>
-                        Opponent
+                        <span class="badge">Rank {{opponent.rank}}</span>
+                        {{opponent.name}}
                     </li>
                     <li class="list-group-item">
-                        <span class="badge">4/5</span>
+                        <span class="badge">{{opponent.stars}}/5</span>
                         Stars
                     </li>
                 </ul>
             </div>
 
             <div class="progress progress-striped">
-                <div class="progress-bar progress-bar-success " style="width: 50%">
-                    0 points
+                <div class="progress-bar progress-bar-success" [ngStyle]="{'width.%': myPercentage}">
+                    {{myScore}} points
                 </div>
 
-                <div class="progress-bar progress-bar-danger" style="width: 50%">
-                    0 points
+                <div class="progress-bar progress-bar-danger" [ngStyle]="{'width.%': theirPercentage}"> 
+                    {{theirScore}} points
                 </div>
             </div>
            
@@ -70,13 +74,13 @@ import {Component} from '@angular/core';
                     <div class="jumbotron battlePanel">
                         <div id="my-question" class="question">
                         <label>Question:</label>
-                        <h2>5 + 2 = ? </h2>
+                        <h2>{{myQuestion}} </h2>
                         </div>
 
                         <div id="my-answer" class="answer">
-                        <label for="usr">Answer:</label>
+                        <label>Answer:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" id="usr">
+                            <input type="text" class="form-control" id="myAnswer">
                         </div>
                         </div>             
                     </div>
@@ -85,18 +89,21 @@ import {Component} from '@angular/core';
                 <div id="opponentPanel" class="col-xs-6 ">
                     <div class="jumbotron battlePanel">
                     <div id="my-question" class="question">
-                    <label>Question:</label>
-                        </div>
-
-                        <div id="my-answer" class="answer">
+                        <label>Question:</label>
+                        <h2>{{theirQuestion}}</h2>
+                    </div>
+                    <div id="my-answer" class="answer">
                         <label>Answer:</label>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="theirAnswer">
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
             <div id="hints">
-            <p><strong>Hint:</strong> 1 x 1 = 1</p> 
+            <p><strong>Hint:</strong> {{hints}}</p> 
             </div>
         </div>
 
@@ -163,8 +170,60 @@ import {Component} from '@angular/core';
             margin-right: 1.5em;
         }
 
-    `]
+    `],
+    providers: [UserService, QuestionsService]
 })
-export class AppComponent{
+
+export class AppComponent implements OnInit{
+
+    ngOnInit():void{
+        this.getUser();
+        this.getOpponent();
+        this.getNewQuestionSet();
+        this.getNewQuestion();
+    }
+
+    constructor(private userService:UserService, private questionsService:QuestionsService){}
+
+    user:User = null;
+    opponent:User = null;
+    myQuestion:string = null;
+
+    getUser(): void {
+        this.user = this.userService.getUser();
+    }
+
+    getOpponent(): void {
+        this.opponent = this.userService.getOpponent();
+    }
+
+    getNewQuestionSet(): void {
+        this.questionsService.getNewQuestionSet();
+    }
+
+    getNewQuestion():void{
+        this.myQuestion = this.questionsService.getNewQuestion();
+    }
+
+
+    time = "02:00"
+    hints = "This is a hint"
+
+    myScore = 0;
+    theirScore = 0;
+
+    myPercentage = 50;
+    theirPercentage = 50;
+
+    
+    theirQuestion = "7 + 3 = ?";
+
+    login(){
+        console.log('login in');
+    }
+
+    signUp(){
+        console.log('signing up');
+    }
 
 }
