@@ -9,28 +9,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var platform_browser_1 = require('@angular/platform-browser');
-var forms_1 = require('@angular/forms');
-var app_component_1 = require('./app.component');
-var AppModule = (function () {
-    function AppModule() {
+var AnsweringService = (function () {
+    function AnsweringService() {
     }
-    AppModule = __decorate([
-        core_1.NgModule({
-            imports: [
-                platform_browser_1.BrowserModule,
-                forms_1.FormsModule
-            ],
-            declarations: [
-                app_component_1.AppComponent
-            ],
-            bootstrap: [
-                app_component_1.AppComponent
-            ]
-        }), 
+    AnsweringService.prototype.sendMyAnswer = function (ans) {
+        return true;
+    };
+    AnsweringService = __decorate([
+        core_1.Injectable(), 
         __metadata('design:paramtypes', [])
-    ], AppModule);
-    return AppModule;
+    ], AnsweringService);
+    return AnsweringService;
 }());
-exports.AppModule = AppModule;
-//# sourceMappingURL=app.module.js.map
+exports.AnsweringService = AnsweringService;
+//# sourceMappingURL=answering.service.js.map

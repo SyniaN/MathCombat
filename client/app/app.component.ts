@@ -2,6 +2,8 @@ import {Component} from '@angular/core';
 import {User} from './shared/models/User';
 import {UserService} from'./user.service';
 import {QuestionsService} from'./questions.service';
+import {AnsweringService} from './answering.service';
+
 import {OnInit} from '@angular/core';
 
 @Component({
@@ -72,17 +74,19 @@ import {OnInit} from '@angular/core';
             <div id="battlePanels" class="row">
                 <div id="friendlyPanel" class="col-xs-6 ">
                     <div class="jumbotron battlePanel">
-                        <div id="my-question" class="question">
-                        <label>Question:</label>
-                        <h2>{{myQuestion}} </h2>
-                        </div>
+                        <form (submit)="sendMyAnswer()">
+                            <div id="my-question" class="question">
+                                <label>Question:</label>
+                                <h2>{{myQuestion}} </h2>
+                            </div>
 
-                        <div id="my-answer" class="answer">
-                        <label>Answer:</label>
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="myAnswer">
-                        </div>
-                        </div>             
+                            <div id="my-answer" class="answer">
+                                <label>Answer:</label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="myAnswer" [(ngModel)]="myAnswer" name = "myAnswer">
+                                </div>
+                            </div>
+                        </form>             
                     </div>
                 </div>
 
@@ -95,7 +99,7 @@ import {OnInit} from '@angular/core';
                     <div id="my-answer" class="answer">
                         <label>Answer:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" id="theirAnswer">
+                            <input type="text" class="form-control" id="theirAnswer" [(ngModel)]="theirAnswer" name = "theirAnswer">
                         </div>
                     </div>
                 </div>
@@ -171,7 +175,7 @@ import {OnInit} from '@angular/core';
         }
 
     `],
-    providers: [UserService, QuestionsService]
+    providers: [UserService, QuestionsService, AnsweringService]
 })
 
 export class AppComponent implements OnInit{
@@ -183,11 +187,33 @@ export class AppComponent implements OnInit{
         this.getNewQuestion();
     }
 
-    constructor(private userService:UserService, private questionsService:QuestionsService){}
+    constructor(private userService:UserService, private questionsService:QuestionsService, private answeringService:AnsweringService){}
 
     user:User = null;
     opponent:User = null;
     myQuestion:string = null;
+    myAnswer:string = null;
+    theirAnswer:string = null;
+    
+    myScore = 0;
+    theirScore = 0;
+    
+    myPercentage = 50;
+    theirPercentage = 50;
+    
+    time = "02:00"
+    hints = "This is a hint"
+
+    theirQuestion = "7 + 3 = ?";
+
+    sendMyAnswer(): void {
+        console.log('sendMyAnswer('+this.myAnswer+')');
+        var answerCorrect = this.answeringService.sendMyAnswer(this.myAnswer);
+        if (answerCorrect){
+            this.myAnswer = null;
+            this.getNewQuestion();
+        }
+    }
 
     getUser(): void {
         this.user = this.userService.getUser();
@@ -206,17 +232,6 @@ export class AppComponent implements OnInit{
     }
 
 
-    time = "02:00"
-    hints = "This is a hint"
-
-    myScore = 0;
-    theirScore = 0;
-
-    myPercentage = 50;
-    theirPercentage = 50;
-
-    
-    theirQuestion = "7 + 3 = ?";
 
     login(){
         console.log('login in');
