@@ -9,6 +9,11 @@ import {OnInit} from '@angular/core';
 @Component({
     selector: 'my-app',
     template: `
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+
     <header>
         <nav class="navbar navbar-default">
             <div class="container">
@@ -74,10 +79,10 @@ import {OnInit} from '@angular/core';
             <div id="battlePanels" class="row">
                 <div id="friendlyPanel" class="col-xs-6 ">
                     <div class="jumbotron battlePanel">
-                        <form (submit)="sendMyAnswer()">
+                        <form (submit)="sendMyAnswer()" >
                             <div id="my-question" class="question">
                                 <label>Question:</label>
-                                <h2>{{myQuestion}} </h2>
+                                <h2>{{myQuestion}} = ?</h2>
                             </div>
 
                             <div id="my-answer" class="answer">
@@ -208,7 +213,8 @@ export class AppComponent implements OnInit{
 
     sendMyAnswer(): void {
         console.log('sendMyAnswer('+this.myAnswer+')');
-        var answerCorrect = this.answeringService.sendMyAnswer(this.myAnswer);
+        var answerCorrect:boolean = this.answeringService.sendMyAnswer(this.myQuestion, this.myAnswer);
+        console.log('answerCorrect: ' + answerCorrect);
         if (answerCorrect){
             this.myAnswer = null;
             this.getNewQuestion();
@@ -230,8 +236,6 @@ export class AppComponent implements OnInit{
     getNewQuestion():void{
         this.myQuestion = this.questionsService.getNewQuestion();
     }
-
-
 
     login(){
         console.log('login in');

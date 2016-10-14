@@ -1,1 +1,1 @@
-{"version":3,"file":"mock-questions.js","sourceRoot":"","sources":["../../../app/shared/mock/mock-questions.ts"],"names":[],"mappings":";AAAa,mBAAW,GAAY;IAChC,WAAW;IACX,WAAW;IACX,WAAW;IACX,WAAW;IACX,WAAW;IACX,WAAW;IACX,iFAAiF;CACpF,CAAA"}
+{"version":3,"file":"mock-questions.js","sourceRoot":"","sources":["../../../app/shared/mock/mock-questions.ts"],"names":[],"mappings":";AAAa,mBAAW,GAAY;IAChC,OAAO;IACP,OAAO;IACP,OAAO;IACP,QAAQ;IACR,OAAO;IACP,OAAO;IACP,OAAO;IACP,OAAO;IACP,OAAO;CACV,CAAA"}

@@ -8,6 +8,18 @@ app.get('/*', function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
 
-app.listen(port, function() {
+var server = app.listen(port, function() {
     console.log('Angular Arithmatica listening on port ' + port);
 })
+
+
+/////////////
+//Socket.io//
+/////////////
+/*var io = require('socket.io')(server);
+
+io.sockets.on('connection', function(socket) {
+    socket.on('chat_message', function(msg) {
+        io.emit("chat_message", msg);
+    });
+});*/
