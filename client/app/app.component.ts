@@ -179,6 +179,10 @@ import {OnInit} from '@angular/core';
             margin-right: 1.5em;
         }
 
+        .battlePanel{
+            min-height: 20em;
+        }
+
     `],
     providers: [UserService, QuestionsService, AnsweringService]
 })
@@ -212,12 +216,15 @@ export class AppComponent implements OnInit{
     theirQuestion = "7 + 3 = ?";
 
     sendMyAnswer(): void {
-        console.log('sendMyAnswer('+this.myAnswer+')');
         var answerCorrect:boolean = this.answeringService.sendMyAnswer(this.myQuestion, this.myAnswer);
-        console.log('answerCorrect: ' + answerCorrect);
         if (answerCorrect){
             this.myAnswer = null;
             this.getNewQuestion();
+            this.myScore++;
+
+
+        } else {
+            this.myAnswer = null;
         }
     }
 
