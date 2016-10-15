@@ -5,6 +5,7 @@ import {QuestionsService} from'./questions.service';
 import {AnsweringService} from './answering.service';
 
 import {OnInit} from '@angular/core';
+import {Observable} from 'rxjs/Rx';
 
 @Component({
     selector: 'my-app',
@@ -67,11 +68,11 @@ import {OnInit} from '@angular/core';
             </div>
 
             <div class="progress progress-striped">
-                <div class="progress-bar progress-bar-success" [ngStyle]="{'width.%': myPercentage}">
+                <div class="progress-bar progress-bar-success" style="min-width: 2%; max-width: 98%;" [ngStyle]="{'width.%': myPercentage}">
                     {{myScore}} points
                 </div>
 
-                <div class="progress-bar progress-bar-danger" [ngStyle]="{'width.%': theirPercentage}"> 
+                <div class="progress-bar progress-bar-danger" style="min-width: 2%; max-width: 98%;"  [ngStyle]="{'width.%': theirPercentage}"> 
                     {{theirScore}} points
                 </div>
             </div>
@@ -88,7 +89,16 @@ import {OnInit} from '@angular/core';
                             <div id="my-answer" class="answer">
                                 <label>Answer:</label>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="myAnswer" [(ngModel)]="myAnswer" name = "myAnswer">
+                                    <input 
+                                        type="text" 
+                                        autocomplete="off" 
+                                        class="form-control" 
+                                        id="myAnswer" 
+                                        [ngClass]="{'greenBackground': greenBackground, 'redBackground': redBackground }"
+                                        [(ngModel)]="myAnswer" 
+                                        name = "myAnswer"
+                                        >
+                                    <p [ngClass]="{'greenWriting': greenWriting, 'redWriting': redWriting }"><i>{{message}}</i></p>
                                 </div>
                             </div>
                         </form>             
@@ -104,7 +114,7 @@ import {OnInit} from '@angular/core';
                     <div id="my-answer" class="answer">
                         <label>Answer:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" id="theirAnswer" [(ngModel)]="theirAnswer" name = "theirAnswer">
+                            <input type="text" autocomplete="off" class="form-control" id="theirAnswer" [(ngModel)]="theirAnswer" name = "theirAnswer">
                         </div>
                     </div>
                 </div>
@@ -142,6 +152,23 @@ import {OnInit} from '@angular/core';
     </footer>
     `,
     styles: [`
+
+        .greenWriting {
+            color: #00FF00;
+        }
+
+        .redWriting {
+            color: red;
+        }
+
+        .greenBackground {
+            background-color: #00FF00;
+        }
+
+        .redBackground {
+            background-color: red;
+        }
+
         .jumbotron { 
             box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
         }
@@ -203,6 +230,10 @@ export class AppComponent implements OnInit{
     myQuestion:string = null;
     myAnswer:string = null;
     theirAnswer:string = null;
+    greenBackground: boolean = false;
+    redBackground: boolean = false;
+    greenWriting: boolean = false;
+    redWriting: boolean = false;
     
     myScore = 0;
     theirScore = 0;
@@ -210,22 +241,57 @@ export class AppComponent implements OnInit{
     myPercentage = 50;
     theirPercentage = 50;
     
-    time = "02:00"
-    hints = "This is a hint"
+    message = "";
+    time = "02:00";
+    hints = "This is a hint";
 
     theirQuestion = "7 + 3 = ?";
+
+    updatePercentage():void{
+        var tempMyScore = this.myScore;
+        var tempTheirScore = this.theirScore;
+
+        if(tempMyScore === 0){
+            tempMyScore = 0.02;
+        }
+
+        if (tempTheirScore === 0){
+            tempTheirScore = 0.02;
+        }
+
+        var total = tempMyScore + tempTheirScore;
+
+        this.myPercentage = tempMyScore/total * 100;
+        this.theirPercentage = 100 - this.myPercentage;
+
+        console.log('my new percentage: ' + this.myPercentage);
+    }
 
     sendMyAnswer(): void {
         var answerCorrect:boolean = this.answeringService.sendMyAnswer(this.myQuestion, this.myAnswer);
         if (answerCorrect){
+            this.redBackground = false;
+            this.redWriting = false;
+            this.greenBackground = true;
+            this.greenWriting = true;
+            
+            setTimeout(() => {
+                    this.greenBackground = false;
+                }, 180);
+
             this.myAnswer = null;
             this.getNewQuestion();
             this.myScore++;
-
-
+            this.message = "Correct!";
         } else {
+            this.greenBackground = false;
+            this.greenWriting = false;
+            this.redBackground = true;
+            this.redWriting = true;
             this.myAnswer = null;
+            this.message ="Ops, try again!";
         }
+        this.updatePercentage();
     }
 
     getUser(): void {
