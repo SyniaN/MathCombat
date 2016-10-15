@@ -10,25 +10,43 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var mock_questions_1 = require('./shared/mock/mock-questions');
+var mock_questions_2 = require('./shared/mock/mock-questions');
 var QuestionsService = (function () {
     function QuestionsService() {
-        this.counter = 0;
-        this.nextQuestionSet = null;
-        this.currentQuestionSet = null;
+        this.player = {
+            "User": {
+                counter: 0,
+                nextQuestionSet: null,
+                currentQuestionSet: null
+            },
+            "Opponent": {
+                counter: 0,
+                nextQuestionSet: null,
+                currentQuestionSet: null
+            }
+        };
+        this.theirCounter = 0;
+        this.theirCurrentQuestionSet = null;
+        this.theirNextQuestionSet = null;
     }
-    QuestionsService.prototype.getNewQuestionSet = function () {
-        this.currentQuestionSet = this.nextQuestionSet;
-        this.nextQuestionSet = mock_questions_1.MyQuestions;
-    };
-    QuestionsService.prototype.getNewQuestion = function () {
-        if (this.currentQuestionSet === null || this.counter === this.currentQuestionSet.length) {
-            var returnQuestion = this.nextQuestionSet[0];
-            this.counter = 1;
-            this.getNewQuestionSet();
+    QuestionsService.prototype.getNewQuestionSet = function (forWhom) {
+        this.player[forWhom].currentQuestionSet = this.player[forWhom].nextQuestionSet;
+        if (forWhom === "User") {
+            this.player[forWhom].nextQuestionSet = mock_questions_1.MyQuestions;
         }
         else {
-            var returnQuestion = this.currentQuestionSet[this.counter];
-            this.counter++;
+            this.player[forWhom].nextQuestionSet = mock_questions_2.TheirQuestions;
+        }
+    };
+    QuestionsService.prototype.getNewQuestion = function (forWhom) {
+        if (this.player[forWhom].currentQuestionSet === null || this.player[forWhom].counter === this.player[forWhom].currentQuestionSet.length) {
+            var returnQuestion = this.player[forWhom].nextQuestionSet[0];
+            this.player[forWhom].counter = 1;
+            this.getNewQuestionSet(forWhom);
+        }
+        else {
+            var returnQuestion = this.player[forWhom].currentQuestionSet[this.player[forWhom].counter];
+            this.player[forWhom].counter++;
         }
         return returnQuestion;
     };

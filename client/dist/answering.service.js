@@ -12,15 +12,19 @@ var core_1 = require('@angular/core');
 var AnsweringService = (function () {
     function AnsweringService() {
     }
-    AnsweringService.prototype.sendMyAnswer = function (question, ans) {
-        question = question.replace('x', '*');
-        question = question.replace('÷', '/');
-        if (eval(question) === parseInt(ans)) {
+    AnsweringService.prototype.isCorrect = function (question, ans) {
+        var realAnswer = this.solveQuestion(question);
+        if (realAnswer === parseInt(ans)) {
             return true;
         }
         else {
             return false;
         }
+    };
+    AnsweringService.prototype.solveQuestion = function (question) {
+        question = question.replace('x', '*');
+        question = question.replace('÷', '/');
+        return eval(question);
     };
     AnsweringService = __decorate([
         core_1.Injectable(), 

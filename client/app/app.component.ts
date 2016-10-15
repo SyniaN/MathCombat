@@ -19,7 +19,7 @@ import {Observable} from 'rxjs/Rx';
         <nav class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
-                    <a href="/" class="navbar-brand">Arithmetica</a>
+                    <a href="/" class="navbar-brand">Math Combat</a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
@@ -68,12 +68,12 @@ import {Observable} from 'rxjs/Rx';
             </div>
 
             <div class="progress progress-striped">
-                <div class="progress-bar progress-bar-success" style="min-width: 2%; max-width: 98%;" [ngStyle]="{'width.%': myPercentage}">
-                    {{myScore}} points
+                <div class="progress-bar progress-bar-success" style="min-width: 2%; max-width: 98%;" [ngStyle]="{'width.%': p.User.percentage}">
+                    {{p.User.score}} points
                 </div>
 
-                <div class="progress-bar progress-bar-danger" style="min-width: 2%; max-width: 98%;"  [ngStyle]="{'width.%': theirPercentage}"> 
-                    {{theirScore}} points
+                <div class="progress-bar progress-bar-danger" style="min-width: 2%; max-width: 98%;"  [ngStyle]="{'width.%': p.Opponent.percentage}"> 
+                    {{p.Opponent.score}} points
                 </div>
             </div>
            
@@ -94,11 +94,11 @@ import {Observable} from 'rxjs/Rx';
                                         autocomplete="off" 
                                         class="form-control" 
                                         id="myAnswer" 
-                                        [ngClass]="{'greenBackground': greenBackground, 'redBackground': redBackground }"
-                                        [(ngModel)]="myAnswer" 
+                                        [ngClass]="{'greenBackground': p.User.greenBackground, 'redBackground': p.User.redBackground }"
+                                        [(ngModel)]="p.User.answer" 
                                         name = "myAnswer"
                                         >
-                                    <p [ngClass]="{'greenWriting': greenWriting, 'redWriting': redWriting }"><i>{{message}}</i></p>
+                                    <p [ngClass]="{'greenWriting': p.User.greenWriting, 'redWriting': p.User.redWriting }"><i>{{p.User.message}}</i></p>
                                 </div>
                             </div>
                         </form>             
@@ -111,10 +111,17 @@ import {Observable} from 'rxjs/Rx';
                         <label>Question:</label>
                         <h2>{{theirQuestion}}</h2>
                     </div>
-                    <div id="my-answer" class="answer">
+                    <div id="their-answer" class="answer">
                         <label>Answer:</label>
                         <div class="form-group">
-                            <input type="text" autocomplete="off" class="form-control" id="theirAnswer" [(ngModel)]="theirAnswer" name = "theirAnswer">
+                            <input 
+                                type="number" 
+                                autocomplete="off" 
+                                class="form-control" 
+                                id="theirAnswer" 
+                                [ngClass]="{'greenBackground': p.Opponent.greenBackground, 'redBackground': p.Opponent.redBackground }"
+                                value="{{p.Opponent.answer}}"
+                                name = "theirAnswer">
                         </div>
                     </div>
                 </div>
@@ -122,7 +129,7 @@ import {Observable} from 'rxjs/Rx';
         </div>
 
             <div id="hints">
-            <p><strong>Hint:</strong> {{hints}}</p> 
+            <p><strong>Hint:</strong> {{hints}}{{p.Opponent.answer}}</p> 
             </div>
         </div>
 
@@ -142,11 +149,7 @@ import {Observable} from 'rxjs/Rx';
                 <li><a href="#">Contact</a></li>
             </ul>
 
-            
-
-            </div>
-
-            
+            </div>           
 
         </div>
     </footer>
@@ -219,37 +222,58 @@ export class AppComponent implements OnInit{
     ngOnInit():void{
         this.getUser();
         this.getOpponent();
-        this.getNewQuestionSet();
-        this.getNewQuestion();
+        this.getNewQuestionSet("User");
+        this.getNewQuestionSet("Opponent");
+        this.getNewQuestion("User");
+        this.getNewQuestion("Opponent");
+        setInterval(() => {
+            if(Math.random()<0.3){
+                this.reiceiveOpponentAnswer();
+                
+            }
+        }, 400);
     }
 
     constructor(private userService:UserService, private questionsService:QuestionsService, private answeringService:AnsweringService){}
 
     user:User = null;
     opponent:User = null;
+
     myQuestion:string = null;
-    myAnswer:string = null;
-    theirAnswer:string = null;
-    greenBackground: boolean = false;
-    redBackground: boolean = false;
-    greenWriting: boolean = false;
-    redWriting: boolean = false;
     
-    myScore = 0;
-    theirScore = 0;
+    theirQuestion:string = null;
+
+    p = {
+        "User":{
+            greenBackground: false,
+            redBackground: false,
+            greenWriting: false,
+            redWriting: false,
+            message: "",
+            score: 0,
+            percentage: 50,
+            answer: null
+
+        },
+        "Opponent":{
+            greenBackground: false,
+            redBackground: false,
+            greenWriting: false,
+            redWriting: false,
+            message: "",
+            score: 0,
+            percentage: 50,
+            answer: null
+        }
+    }
     
-    myPercentage = 50;
-    theirPercentage = 50;
     
-    message = "";
     time = "02:00";
     hints = "This is a hint";
 
-    theirQuestion = "7 + 3 = ?";
-
     updatePercentage():void{
-        var tempMyScore = this.myScore;
-        var tempTheirScore = this.theirScore;
+        var tempMyScore = this.p.User.score;
+        var tempTheirScore = this.p.Opponent.score;
 
         if(tempMyScore === 0){
             tempMyScore = 0.02;
@@ -261,37 +285,68 @@ export class AppComponent implements OnInit{
 
         var total = tempMyScore + tempTheirScore;
 
-        this.myPercentage = tempMyScore/total * 100;
-        this.theirPercentage = 100 - this.myPercentage;
-
-        console.log('my new percentage: ' + this.myPercentage);
+        this.p.User.percentage = tempMyScore/total * 100;
+        this.p.Opponent.percentage = 100 - this.p.User.percentage;
     }
 
     sendMyAnswer(): void {
-        var answerCorrect:boolean = this.answeringService.sendMyAnswer(this.myQuestion, this.myAnswer);
+        var answerCorrect:boolean = this.answeringService.isCorrect(this.myQuestion, this.p.User.answer);
+        this.markInput("User", answerCorrect);
+    }
+
+    markInput(forWhom:string, answerCorrect): void{
+        console.log('marking Input where p...answer:' + this.p[forWhom].answer);
+        if (forWhom === 'User'){
+            var Other = 'Opponent';
+        } else {
+            var Other = "User";
+        }
+
+
         if (answerCorrect){
-            this.redBackground = false;
-            this.redWriting = false;
-            this.greenBackground = true;
-            this.greenWriting = true;
+            this.p[forWhom].redBackground = false;
+            this.p[forWhom].redWriting = false;
+            this.p[forWhom].greenBackground = true;
+            this.p[forWhom].greenWriting = true;
             
             setTimeout(() => {
-                    this.greenBackground = false;
+                    this.p[forWhom].greenBackground = false;
                 }, 180);
 
-            this.myAnswer = null;
-            this.getNewQuestion();
-            this.myScore++;
-            this.message = "Correct!";
+            this.p[forWhom].answer = null;
+            this.getNewQuestion(forWhom);
+            if (this.p[forWhom].score < 15){
+                this.p[forWhom].score ++;
+            }
+            if ((this.p[Other].score + this.p[forWhom].score >= 16) && (this.p[Other].score > 0)){
+                this.p[Other].score--;
+            }
+            this.p[forWhom].message = "Correct!";
         } else {
-            this.greenBackground = false;
-            this.greenWriting = false;
-            this.redBackground = true;
-            this.redWriting = true;
-            this.myAnswer = null;
-            this.message ="Ops, try again!";
+            this.p[forWhom].greenBackground = false;
+            this.p[forWhom].greenWriting = false;
+            this.p[forWhom].redBackground = true;
+            this.p[forWhom].redWriting = true;
+            this.p[forWhom].answer = null;
+            this.p[forWhom].message ="Ops, try again!";
         }
         this.updatePercentage();
+    }
+
+    reiceiveOpponentAnswer(): void {
+        console.log('receiving opponent answer');
+        var opponentAnswer:number = this.answeringService.solveQuestion(this.theirQuestion);
+        var correctChance = 0.9;
+        if (Math.random() > correctChance){
+            opponentAnswer = Math.floor(opponentAnswer * Math.random());
+        } 
+        this.p.Opponent.answer = opponentAnswer.toString();
+        setTimeout(() => {
+            var answerCorrect:boolean = this.answeringService.isCorrect(this.theirQuestion, this.p.Opponent.answer)
+            this.markInput("Opponent",answerCorrect);
+        }, 500);
+
+        
     }
 
     getUser(): void {
@@ -302,13 +357,19 @@ export class AppComponent implements OnInit{
         this.opponent = this.userService.getOpponent();
     }
 
-    getNewQuestionSet(): void {
-        this.questionsService.getNewQuestionSet();
+    getNewQuestionSet(forWhom:string): void {
+        this.questionsService.getNewQuestionSet(forWhom);
     }
 
-    getNewQuestion():void{
-        this.myQuestion = this.questionsService.getNewQuestion();
+    getNewQuestion(forWhom:string): void{
+        if (forWhom === "User"){
+            this.myQuestion = this.questionsService.getNewQuestion("User");
+        } else {
+            this.theirQuestion = this.questionsService.getNewQuestion("Opponent");
+        }
     }
+
+
 
     login(){
         console.log('login in');

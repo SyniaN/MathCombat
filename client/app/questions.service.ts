@@ -1,31 +1,55 @@
 import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs/Subject';
 
 import {MyQuestions} from './shared/mock/mock-questions';
+import {TheirQuestions} from './shared/mock/mock-questions';
 
 @Injectable()
 export class QuestionsService{
 
-    counter:number = 0;
-    nextQuestionSet:string[] = null;
-    currentQuestionSet: string[] = null;
+    player = {
+        "User":{
+            counter: 0,
+            nextQuestionSet:  null,
+            currentQuestionSet: null
 
-    getNewQuestionSet():void{
-        this.currentQuestionSet = this.nextQuestionSet;
-        this.nextQuestionSet = MyQuestions;
+        },
+        "Opponent":{
+            counter: 0,
+            nextQuestionSet: null,
+            currentQuestionSet: null
+        }
+    };
+
+    theirCounter:number = 0;
+    theirCurrentQuestionSet: string[] = null;
+    theirNextQuestionSet: string[] = null;
+
+    getNewQuestionSet(forWhom:string):void{
+
+            this.player[forWhom].currentQuestionSet = this.player[forWhom].nextQuestionSet;
+
+            if (forWhom === "User"){
+                this.player[forWhom].nextQuestionSet = MyQuestions;
+            } else {
+                this.player[forWhom].nextQuestionSet = TheirQuestions;
+            }
+
     }
 
-    getNewQuestion():string{
+    getNewQuestion(forWhom:string):string{
 
-        if( this.currentQuestionSet === null || this.counter === this.currentQuestionSet.length){
-             var returnQuestion = this.nextQuestionSet[0];
-            this.counter = 1;
-            this.getNewQuestionSet();
+        if( this.player[forWhom].currentQuestionSet === null || this.player[forWhom].counter === this.player[forWhom].currentQuestionSet.length){
+            var returnQuestion = this.player[forWhom].nextQuestionSet[0];
+            this.player[forWhom].counter = 1;
+            this.getNewQuestionSet(forWhom);
         } else {
-            var returnQuestion = this.currentQuestionSet[this.counter];
-            this.counter++;
+            var returnQuestion = this.player[forWhom].currentQuestionSet[this.player[forWhom].counter];
+            this.player[forWhom].counter++;
         }
-        
+             
         return returnQuestion;
     }
+
 
 }

@@ -2,13 +2,13 @@
 import {User} from '../models/User';
 
 export const CURRENT_USER:User = {
-        name: "SyniaN",
+        name: "Player 1",
         rank: 1,
         stars: 1
     }
 
 export const CURRENT_OPPONENT:User = {
-        name: "ImperialX",
+        name: "Bot-1500-0.6",
         rank: 2,
         stars: 2
     }

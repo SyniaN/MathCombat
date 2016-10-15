@@ -3,17 +3,20 @@ import {Injectable} from '@angular/core'
 @Injectable()
 export class AnsweringService{
 
-    sendMyAnswer(question, ans):boolean{
+    isCorrect(question, ans):boolean{
+       var realAnswer = this.solveQuestion(question);
 
-        question = question.replace('x', '*');
-        question = question.replace('÷', '/');
-
-        if (eval(question) === parseInt(ans)){
+        if (realAnswer === parseInt(ans)){
             return true;
         } else {
             return false;
         }
-        
+    }
+
+    solveQuestion(question):number{
+        question = question.replace('x', '*');
+        question = question.replace('÷', '/');
+        return eval(question);
     }
     
 }

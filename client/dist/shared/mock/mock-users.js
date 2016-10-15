@@ -1,11 +1,11 @@
 "use strict";
 exports.CURRENT_USER = {
-    name: "SyniaN",
+    name: "Player 1",
     rank: 1,
     stars: 1
 };
 exports.CURRENT_OPPONENT = {
-    name: "ImperialX",
+    name: "Bot-1500-0.6",
     rank: 2,
     stars: 2
 };
