@@ -39,7 +39,7 @@ import {Observable} from 'rxjs/Rx';
 
         <div id="arena">
 
-            <div class="row">
+            <div *ngIf="gameStarted" class="row">
                 <ul class="list-group col-xs-4 player-info-panel">
                     <li class="list-group-item">
                         <span class="badge">Rank {{user.rank}}</span>
@@ -52,7 +52,7 @@ import {Observable} from 'rxjs/Rx';
                 </ul>
                 <div id="timer" class="col-xs-4">
                     <h4>Time:</h4>
-                    <h1>{{time}}</h1>
+                    <h1>{{timer}}</h1>
                 </div>
 
                 <ul class="list-group col-xs-4 player-info-panel">
@@ -67,7 +67,7 @@ import {Observable} from 'rxjs/Rx';
                 </ul>
             </div>
 
-            <div class="progress progress-striped">
+            <div *ngIf="gameStarted" class="progress progress-striped">
                 <div class="progress-bar progress-bar-success" style="min-width: 2%; max-width: 98%;" [ngStyle]="{'width.%': p.User.percentage}">
                     {{p.User.score}} points
                 </div>
@@ -76,8 +76,29 @@ import {Observable} from 'rxjs/Rx';
                     {{p.Opponent.score}} points
                 </div>
             </div>
+
+            <div *ngIf="!gameStarted && !gameOver" id="startButton" (click)="startGame()"><h1> Start</h1> </div>
            
-            <div id="battlePanels" class="row">
+            <div *ngIf="gameOver">
+                <h2>Time Up</h2>
+                <h1>{{you_win}}</h1>
+
+                <div class="col-xs-6">
+                    <h2>{{user.name}}</h2>
+                    <h3>{{p.User.score}}</h3>
+                </div>
+
+                <div class="col-xs-6">
+                    <h2>{{opponent.name}}</h2>
+                    <h3>{{p.Opponent.score}}</h3>
+                </div>
+
+                <button class="btn btn-success" (click)="resetStats()">Close</button>
+
+            </div>
+
+
+            <div *ngIf="gameStarted" id="battlePanels" class="row">
                 <div id="friendlyPanel" class="col-xs-6 ">
                     <div class="jumbotron battlePanel">
                         <form (submit)="sendMyAnswer()" >
@@ -97,6 +118,7 @@ import {Observable} from 'rxjs/Rx';
                                         [ngClass]="{'greenBackground': p.User.greenBackground, 'redBackground': p.User.redBackground }"
                                         [(ngModel)]="p.User.answer" 
                                         name = "myAnswer"
+                                        autofocus="autofocus"
                                         >
                                     <p [ngClass]="{'greenWriting': p.User.greenWriting, 'redWriting': p.User.redWriting }"><i>{{p.User.message}}</i></p>
                                 </div>
@@ -126,11 +148,10 @@ import {Observable} from 'rxjs/Rx';
                     </div>
                 </div>
             </div>
-        </div>
-
             <div id="hints">
-            <p><strong>Hint:</strong> {{hints}}{{p.Opponent.answer}}</p> 
+                <p><strong>Hint:</strong> {{hints}}{{p.Opponent.answer}}</p> 
             </div>
+        </div>    
         </div>
 
     </main>
@@ -155,6 +176,18 @@ import {Observable} from 'rxjs/Rx';
     </footer>
     `,
     styles: [`
+
+        #startButton{
+            width: 25em;
+            height: 6em;
+            border: 1px solid black;
+            margin: auto;
+            margin-top: 15%;
+        }
+
+        #startButton h1{
+            magin:auto;
+        }
 
         .greenWriting {
             color: #00FF00;
@@ -220,28 +253,31 @@ import {Observable} from 'rxjs/Rx';
 export class AppComponent implements OnInit{
 
     ngOnInit():void{
-        this.getUser();
-        this.getOpponent();
-        this.getNewQuestionSet("User");
-        this.getNewQuestionSet("Opponent");
-        this.getNewQuestion("User");
-        this.getNewQuestion("Opponent");
+        var hesitationChance = 0.5;
         setInterval(() => {
-            if(Math.random()<0.3){
-                this.reiceiveOpponentAnswer();
-                
+
+            if(this.p.User.score > this.p.Opponent.score){
+                hesitationChance = 0.2;
+            } else if (this.p.User.score < this.p.Opponent.score) {
+                hesitationChance = 0.7;
             }
-        }, 400);
+
+            if(Math.random()>hesitationChance && this.gameStarted){
+                this.reiceiveOpponentAnswer();                
+            }
+        }, 800);
     }
 
     constructor(private userService:UserService, private questionsService:QuestionsService, private answeringService:AnsweringService){}
 
+    gameStarted:boolean = false;
+    gameOver:boolean = false;
     user:User = null;
     opponent:User = null;
-
     myQuestion:string = null;
-    
     theirQuestion:string = null;
+    you_win:string = null;
+    timer:string = null;
 
     p = {
         "User":{
@@ -266,10 +302,106 @@ export class AppComponent implements OnInit{
             answer: null
         }
     }
-    
-    
-    time = "02:00";
+ 
     hints = "This is a hint";
+
+    startGame():void{
+        this.resetStats();
+        this.getUser();
+        this.getOpponent();
+        this.gameStarted = true;
+        this.getNewQuestionSet("User");
+        this.getNewQuestionSet("Opponent");
+        this.getNewQuestion("User");
+        this.getNewQuestion("Opponent");
+        this.startTimer();
+    }
+
+    endGame():void{
+        this.gameStarted = false;
+        this.gameOver = true;
+        if (this.p.User.score > this.p.Opponent.score){
+            this.you_win = "You Win!";
+        } else if (this.p.User.score < this.p.Opponent.score){
+            this.you_win = "You Lose!";
+        } else {
+            this.you_win = "Draw!";
+        }
+
+    }
+
+    startTimer():void{
+        var time = 90;
+        var minutesString:string;
+        var secondsString:string;
+
+        var interval = setInterval(() => {
+
+            time--;
+            if (time === 0){
+                clearInterval(interval);
+                this.endGame();
+            }
+
+            console.log('time:' +  time);
+            var minutes = Math.floor(time/60);
+            var seconds = time - minutes*60;
+
+            if (minutes < 10){
+                 minutesString = "0" + minutes;
+            } else {
+                 minutesString = minutes.toString();
+            }
+
+            if (seconds < 10){
+                 secondsString = "0" + seconds;
+            } else {
+                 secondsString = seconds.toString();
+            }
+
+            this.timer = minutesString + ":" + secondsString;
+
+        }, 1000);
+
+    }
+
+    resetStats():void{
+
+        this.gameStarted = false;
+        this.gameOver = false;
+        this.user = null;
+        this.opponent = null;
+        this.myQuestion = null;
+        this.theirQuestion = null;
+        this.timer = null;
+
+        this.p = {
+            "User":{
+                greenBackground: false,
+                redBackground: false,
+                greenWriting: false,
+                redWriting: false,
+                message: "",
+                score: 0,
+                percentage: 50,
+                answer: null
+
+            },
+            "Opponent":{
+                greenBackground: false,
+                redBackground: false,
+                greenWriting: false,
+                redWriting: false,
+                message: "",
+                score: 0,
+                percentage: 50,
+                answer: null
+            }
+        }
+    
+        this.hints = "This is a hint";
+        
+    }
 
     updatePercentage():void{
         var tempMyScore = this.p.User.score;
@@ -283,8 +415,27 @@ export class AppComponent implements OnInit{
             tempTheirScore = 0.02;
         }
 
+        var difference = Math.abs(tempMyScore - tempTheirScore);
+        if (difference < 20){
+            if (tempMyScore < tempTheirScore){
+                tempMyScore = 2;
+                tempTheirScore = 2 + difference;
+            }  else {
+                tempTheirScore = 2;
+                tempMyScore = 2 + difference;
+            }
+            var total = tempMyScore + tempTheirScore;
+        } else {
+            if (tempMyScore < tempTheirScore){
+                tempMyScore = 0.5;
+                tempTheirScore = difference;
+            }  else {
+                tempTheirScore = 0.5;
+                tempMyScore = difference;
+            }
+        }
+        
         var total = tempMyScore + tempTheirScore;
-
         this.p.User.percentage = tempMyScore/total * 100;
         this.p.Opponent.percentage = 100 - this.p.User.percentage;
     }
@@ -296,12 +447,6 @@ export class AppComponent implements OnInit{
 
     markInput(forWhom:string, answerCorrect): void{
         console.log('marking Input where p...answer:' + this.p[forWhom].answer);
-        if (forWhom === 'User'){
-            var Other = 'Opponent';
-        } else {
-            var Other = "User";
-        }
-
 
         if (answerCorrect){
             this.p[forWhom].redBackground = false;
@@ -310,19 +455,15 @@ export class AppComponent implements OnInit{
             this.p[forWhom].greenWriting = true;
             
             setTimeout(() => {
-                    this.p[forWhom].greenBackground = false;
-                }, 180);
+                this.p[forWhom].greenBackground = false;
+            }, 230);
 
             this.p[forWhom].answer = null;
             this.getNewQuestion(forWhom);
-            if (this.p[forWhom].score < 15){
-                this.p[forWhom].score ++;
-            }
-            if ((this.p[Other].score + this.p[forWhom].score >= 16) && (this.p[Other].score > 0)){
-                this.p[Other].score--;
-            }
+            this.p[forWhom].score ++;
             this.p[forWhom].message = "Correct!";
         } else {
+            this.p[forWhom].score --;
             this.p[forWhom].greenBackground = false;
             this.p[forWhom].greenWriting = false;
             this.p[forWhom].redBackground = true;
@@ -336,7 +477,7 @@ export class AppComponent implements OnInit{
     reiceiveOpponentAnswer(): void {
         console.log('receiving opponent answer');
         var opponentAnswer:number = this.answeringService.solveQuestion(this.theirQuestion);
-        var correctChance = 0.9;
+        var correctChance = 0.95;
         if (Math.random() > correctChance){
             opponentAnswer = Math.floor(opponentAnswer * Math.random());
         } 
@@ -344,9 +485,7 @@ export class AppComponent implements OnInit{
         setTimeout(() => {
             var answerCorrect:boolean = this.answeringService.isCorrect(this.theirQuestion, this.p.Opponent.answer)
             this.markInput("Opponent",answerCorrect);
-        }, 500);
-
-        
+        }, 500);        
     }
 
     getUser(): void {
@@ -368,8 +507,6 @@ export class AppComponent implements OnInit{
             this.theirQuestion = this.questionsService.getNewQuestion("Opponent");
         }
     }
-
-
 
     login(){
         console.log('login in');
