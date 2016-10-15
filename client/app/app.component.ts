@@ -164,10 +164,7 @@ import {Observable} from 'rxjs/Rx';
 
             <ul class="list-unstyled">
                 <li class="pull-right"><p>Copyright &copy; 2016</p></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Twitter</a></li>
-                <li><a href="#">GitHub</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="https://github.com/SyniaN/MathCombat">GitHub</a></li>
             </ul>
 
             </div>           
