@@ -90,7 +90,7 @@ import {Observable} from 'rxjs/Rx';
                                 <label>Answer:</label>
                                 <div class="form-group">
                                     <input 
-                                        type="text" 
+                                        type="number" 
                                         autocomplete="off" 
                                         class="form-control" 
                                         id="myAnswer" 
