@@ -10,41 +10,36 @@ app.get('/', function(req, res) {
 
 app.get('/api/getQuestionSet', function(req, res) {
     console.log('sending hi');
+    newQuestionSet = generateQuestions(1);
     res.json({
-        data: [
-            "5 + 2",
-            "6 + 7",
-            "8 - 2",
-            "10 ÷ 5",
-            "9 x 4",
-            "7 - 5",
-            "9 ÷ 3",
-            "1 + 1",
-            "6 ÷ 2",
-            "3 + 2",
-            "4 + 5",
-            "2 + 6",
-            "7 - 3",
-            "3 + 2",
-            "5 + 7",
-            "4 - 1",
-            "2 + 6",
-            "10 ÷ 5",
-            "6 + 6",
-            "5 x 9",
-            "3 - 1",
-            "10 ÷ 2",
-            "4 + 5",
-            "3 x 2",
-            "10 - 10",
-            "3 ÷ 3",
-            "4 x 8",
-            "4 ÷ 2",
-            "1 x 2",
-            "6 ÷ 2"
-        ]
+        data: newQuestionSet
     });
 });
+
+function generateQuestions(level) {
+
+    var returnQuestionSet = [];
+
+    for (var i = 0; i < 10; i++) {
+        var newQuestion = "";
+
+        switch (level) {
+            case 1:
+                newQuestion = Math.floor(Math.random() * 10) + " + " + Math.floor(Math.random() * 10);
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
+
+        returnQuestionSet.push(newQuestion);
+
+    }
+
+    return returnQuestionSet;
+
+}
 
 var server = app.listen(port, function() {
     console.log('Angular Arithmatica listening on port ' + port);
