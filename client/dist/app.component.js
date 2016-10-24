@@ -205,7 +205,6 @@ var AppComponent = (function () {
             this.p[forWhom].message = "Correct!";
         }
         else {
-            this.p[forWhom].score--;
             this.p[forWhom].greenBackground = false;
             this.p[forWhom].greenWriting = false;
             this.p[forWhom].redBackground = true;

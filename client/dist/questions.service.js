@@ -9,39 +9,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var mock_questions_1 = require('./shared/mock/mock-questions');
-var mock_questions_2 = require('./shared/mock/mock-questions');
+var http_1 = require('@angular/http');
+require('rxjs/add/operator/toPromise');
 var QuestionsService = (function () {
-    function QuestionsService() {
+    function QuestionsService(http) {
+        this.http = http;
+        this.questionSetURL = 'api/getQuestionSet';
         this.player = {
             "User": {
                 counter: 0,
-                nextQuestionSet: null,
-                currentQuestionSet: null
+                nextQuestionSet: [],
+                currentQuestionSet: ["1+1"]
             },
             "Opponent": {
                 counter: 0,
-                nextQuestionSet: null,
-                currentQuestionSet: null
+                nextQuestionSet: [],
+                currentQuestionSet: ["1+1"]
             }
         };
-        this.theirCounter = 0;
-        this.theirCurrentQuestionSet = null;
-        this.theirNextQuestionSet = null;
     }
+    QuestionsService.prototype.initializeQuestionSets = function () {
+        this.getNewQuestionSet("User");
+        this.getNewQuestionSet("Opponent");
+    };
     QuestionsService.prototype.getNewQuestionSet = function (forWhom) {
+        var _this = this;
+        this.http.get('api/getQuestionSet')
+            .toPromise()
+            .then(function (response) { return _this.player[forWhom].nextQuestionSet = response.json().data; })
+            .catch(function () { console.log('something went wrong'); });
+    };
+    QuestionsService.prototype.updateCurrentQuestionSet = function (forWhom) {
         this.player[forWhom].currentQuestionSet = this.player[forWhom].nextQuestionSet;
-        if (forWhom === "User") {
-            this.player[forWhom].nextQuestionSet = mock_questions_1.MyQuestions;
-        }
-        else {
-            this.player[forWhom].nextQuestionSet = mock_questions_2.TheirQuestions;
-        }
     };
     QuestionsService.prototype.getNewQuestion = function (forWhom) {
-        if (this.player[forWhom].currentQuestionSet === null || this.player[forWhom].counter === this.player[forWhom].currentQuestionSet.length) {
+        if (this.player[forWhom].counter >= this.player[forWhom].currentQuestionSet.length) {
             var returnQuestion = this.player[forWhom].nextQuestionSet[0];
             this.player[forWhom].counter = 1;
+            this.updateCurrentQuestionSet(forWhom);
             this.getNewQuestionSet(forWhom);
         }
         else {
@@ -52,7 +57,7 @@ var QuestionsService = (function () {
     };
     QuestionsService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [http_1.Http])
     ], QuestionsService);
     return QuestionsService;
 }());
