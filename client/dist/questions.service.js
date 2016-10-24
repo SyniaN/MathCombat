@@ -19,12 +19,12 @@ var QuestionsService = (function () {
             "User": {
                 counter: 0,
                 nextQuestionSet: [],
-                currentQuestionSet: ["1+1"]
+                currentQuestionSet: [Math.floor(Math.random() * 10) + " + " + Math.floor(Math.random() * 10)]
             },
             "Opponent": {
                 counter: 0,
                 nextQuestionSet: [],
-                currentQuestionSet: ["1+1"]
+                currentQuestionSet: [Math.floor(Math.random() * 10) + " + " + Math.floor(Math.random() * 10)]
             }
         };
     }
