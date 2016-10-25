@@ -71,6 +71,8 @@ function subtraction(o) {
         o.max = o.max - newOperand;
         if (o.max <= 0) {
             return newQuestion;
+        } else if (Math.random() < 0.5) {
+            return newQuestion;
         }
     }
 
