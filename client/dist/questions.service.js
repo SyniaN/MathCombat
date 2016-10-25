@@ -34,7 +34,9 @@ var QuestionsService = (function () {
     };
     QuestionsService.prototype.getNewQuestionSet = function (forWhom) {
         var _this = this;
-        this.http.get('api/getQuestionSet')
+        var params = new http_1.URLSearchParams();
+        params.set('level', '4');
+        this.http.get('api/getQuestionSet', { search: params })
             .toPromise()
             .then(function (response) { return _this.player[forWhom].nextQuestionSet = response.json().data; })
             .catch(function () { console.log('something went wrong'); });

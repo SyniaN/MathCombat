@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Headers, Http} from '@angular/http';
+import {URLSearchParams, Headers, Http} from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 import {Subject} from 'rxjs/Subject';
@@ -36,7 +36,9 @@ export class QuestionsService{
     }
 
     getNewQuestionSet(forWhom:string):void{
-        this.http.get('api/getQuestionSet')
+        let params = new URLSearchParams();
+        params.set('level', '4');
+        this.http.get('api/getQuestionSet', {search: params})
             .toPromise()
             .then(response => this.player[forWhom].nextQuestionSet = response.json().data)
             .catch(function(){console.log('something went wrong')});

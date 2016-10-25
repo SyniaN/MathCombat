@@ -14,8 +14,9 @@ app.get('/', function(req, res) {
 });
 
 app.get('/api/getQuestionSet', function(req, res) {
-    console.log('/api/getQuestionSet');
-    var newQuestionSet = QuestionSet.generate(1);
+    console.log('/api/getQuestionSet?level=' + req.query.level);
+    var level = req.query.level;
+    var newQuestionSet = QuestionSet.generate(level);
     res.json({
         data: newQuestionSet
     });
