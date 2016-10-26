@@ -13,12 +13,41 @@ var mock_users_1 = require('./shared/mock/mock-users');
 var mock_users_2 = require('./shared/mock/mock-users');
 var UserService = (function () {
     function UserService() {
+        this.user = null;
+        this.opponent = null;
     }
     UserService.prototype.getUser = function () {
-        return mock_users_1.CURRENT_USER;
+        if (this.user === null) {
+            this.user = mock_users_1.CURRENT_USER;
+        }
+        return this.user;
+    };
+    UserService.prototype.addStar = function (newStarCount) {
+        if (this.user === null) {
+            this.user = mock_users_1.CURRENT_USER;
+        }
+        this.user.stars += newStarCount;
+        this.updateRank();
+    };
+    UserService.prototype.removeStar = function (removeStarCount) {
+        if (this.user === null) {
+            this.user = mock_users_1.CURRENT_USER;
+        }
+        if (this.user.stars > 0) {
+            this.user.stars -= removeStarCount;
+        }
+        ;
+        this.updateRank();
+    };
+    UserService.prototype.updateRank = function () {
+        this.user.rank = Math.floor(this.user.stars / 3) + 1;
     };
     UserService.prototype.getOpponent = function () {
-        return mock_users_2.CURRENT_OPPONENT;
+        if (this.opponent === null) {
+            this.opponent = mock_users_2.CURRENT_OPPONENT;
+        }
+        ;
+        return this.opponent;
     };
     UserService = __decorate([
         core_1.Injectable(), 

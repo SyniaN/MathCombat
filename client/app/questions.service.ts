@@ -30,14 +30,9 @@ export class QuestionsService{
 
     constructor(private http: Http){}
 
-    initializeQuestionSets():void{
-        this.getNewQuestionSet("User");
-        this.getNewQuestionSet("Opponent");
-    }
-
-    getNewQuestionSet(forWhom:string):void{
+    getNewQuestionSet(forWhom:string, levelIn:string):void{
         let params = new URLSearchParams();
-        params.set('level', '4');
+        params.set('level', levelIn);
         this.http.get('api/getQuestionSet', {search: params})
             .toPromise()
             .then(response => this.player[forWhom].nextQuestionSet = response.json().data)
@@ -48,13 +43,13 @@ export class QuestionsService{
          this.player[forWhom].currentQuestionSet = this.player[forWhom].nextQuestionSet;
     }
 
-    getNewQuestion(forWhom:string):string{
+    getNewQuestion(forWhom:string, levelIn:string):string{
 
         if( this.player[forWhom].counter >= this.player[forWhom].currentQuestionSet.length){
             var returnQuestion = this.player[forWhom].nextQuestionSet[0];
             this.player[forWhom].counter = 1;
             this.updateCurrentQuestionSet(forWhom);
-            this.getNewQuestionSet(forWhom);
+            this.getNewQuestionSet(forWhom, levelIn);
         } else {
             var returnQuestion = this.player[forWhom].currentQuestionSet[this.player[forWhom].counter];
             this.player[forWhom].counter++;

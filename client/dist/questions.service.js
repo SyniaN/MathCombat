@@ -28,14 +28,10 @@ var QuestionsService = (function () {
             }
         };
     }
-    QuestionsService.prototype.initializeQuestionSets = function () {
-        this.getNewQuestionSet("User");
-        this.getNewQuestionSet("Opponent");
-    };
-    QuestionsService.prototype.getNewQuestionSet = function (forWhom) {
+    QuestionsService.prototype.getNewQuestionSet = function (forWhom, levelIn) {
         var _this = this;
         var params = new http_1.URLSearchParams();
-        params.set('level', '4');
+        params.set('level', levelIn);
         this.http.get('api/getQuestionSet', { search: params })
             .toPromise()
             .then(function (response) { return _this.player[forWhom].nextQuestionSet = response.json().data; })
@@ -44,12 +40,12 @@ var QuestionsService = (function () {
     QuestionsService.prototype.updateCurrentQuestionSet = function (forWhom) {
         this.player[forWhom].currentQuestionSet = this.player[forWhom].nextQuestionSet;
     };
-    QuestionsService.prototype.getNewQuestion = function (forWhom) {
+    QuestionsService.prototype.getNewQuestion = function (forWhom, levelIn) {
         if (this.player[forWhom].counter >= this.player[forWhom].currentQuestionSet.length) {
             var returnQuestion = this.player[forWhom].nextQuestionSet[0];
             this.player[forWhom].counter = 1;
             this.updateCurrentQuestionSet(forWhom);
-            this.getNewQuestionSet(forWhom);
+            this.getNewQuestionSet(forWhom, levelIn);
         }
         else {
             var returnQuestion = this.player[forWhom].currentQuestionSet[this.player[forWhom].counter];

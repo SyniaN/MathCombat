@@ -4,7 +4,7 @@ import {User} from '../models/User';
 export const CURRENT_USER:User = {
         name: "Player 1",
         rank: 1,
-        stars: 1
+        stars: 4
     }
 
 export const CURRENT_OPPONENT:User = {

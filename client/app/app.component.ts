@@ -46,7 +46,7 @@ import {Observable} from 'rxjs/Rx';
                         {{user.name}}
                     </li>
                     <li class="list-group-item">
-                        <span class="badge">{{user.stars}}/5</span>
+                        <span class="badge">{{user.stars/3 | number:'1.0-0'}}/3</span>
                         Stars
                     </li>
                 </ul>
@@ -61,7 +61,7 @@ import {Observable} from 'rxjs/Rx';
                         {{opponent.name}}
                     </li>
                     <li class="list-group-item">
-                        <span class="badge">{{opponent.stars}}/5</span>
+                        <span class="badge">{{opponent.stars}}/3</span>
                         Stars
                     </li>
                 </ul>
@@ -307,10 +307,10 @@ export class AppComponent implements OnInit{
         this.getUser();
         this.getOpponent();
         this.gameStarted = true;
-        this.getNewQuestionSet("User");
-        this.getNewQuestionSet("Opponent");
-        this.getNewQuestion("User");
-        this.getNewQuestion("Opponent");
+        this.getNewQuestionSet("User", this.user.rank.toString());
+        this.getNewQuestionSet("Opponent", this.user.rank.toString());
+        this.getNewQuestion("User", this.user.rank.toString());
+        this.getNewQuestion("Opponent", this.user.rank.toString());
         this.startTimer();
     }
 
@@ -319,8 +319,11 @@ export class AppComponent implements OnInit{
         this.gameOver = true;
         if (this.p.User.score > this.p.Opponent.score){
             this.you_win = "You Win!";
+            this.addStars(1);
         } else if (this.p.User.score < this.p.Opponent.score){
             this.you_win = "You Lose!";
+            this.addStars(1);
+
         } else {
             this.you_win = "Draw!";
         }
@@ -328,7 +331,7 @@ export class AppComponent implements OnInit{
     }
 
     startTimer():void{
-        var time = 90;
+        var time = 30;
         var minutesString:string;
         var secondsString:string;
 
@@ -456,7 +459,7 @@ export class AppComponent implements OnInit{
             }, 230);
 
             this.p[forWhom].answer = null;
-            this.getNewQuestion(forWhom);
+            this.getNewQuestion(forWhom, this.user.rank.toString());
             this.p[forWhom].score ++;
             this.p[forWhom].message = "Correct!";
         } else {
@@ -488,19 +491,27 @@ export class AppComponent implements OnInit{
         this.user = this.userService.getUser();
     }
 
+    addStars(newStarCount:number):void{
+        this.userService.addStar(newStarCount);
+    }
+
+    removeStars(removeStarCount:number):void{
+        this.userService.removeStar(removeStarCount);
+    }
+
     getOpponent(): void {
         this.opponent = this.userService.getOpponent();
     }
 
-    getNewQuestionSet(forWhom:string): void {
-        this.questionsService.getNewQuestionSet(forWhom);
+    getNewQuestionSet(forWhom:string,levelIn:string): void {
+        this.questionsService.getNewQuestionSet(forWhom, levelIn);
     }
 
-    getNewQuestion(forWhom:string): void{
+    getNewQuestion(forWhom:string, levelIn:string): void{
         if (forWhom === "User"){
-            this.myQuestion = this.questionsService.getNewQuestion("User");
+            this.myQuestion = this.questionsService.getNewQuestion("User", levelIn);
         } else {
-            this.theirQuestion = this.questionsService.getNewQuestion("Opponent");
+            this.theirQuestion = this.questionsService.getNewQuestion("Opponent", levelIn);
         }
     }
 

@@ -2,7 +2,7 @@
 exports.CURRENT_USER = {
     name: "Player 1",
     rank: 1,
-    stars: 1
+    stars: 4
 };
 exports.CURRENT_OPPONENT = {
     name: "Bot-1500-0.6",
